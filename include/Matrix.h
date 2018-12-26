@@ -6,6 +6,7 @@
 #define CPPNNET2_MATRIX_H
 
 #include <cstddef>
+#include <algorithm>
 #include <memory>
 
 namespace CppNNet2 {
@@ -32,7 +33,7 @@ namespace CppNNet2 {
     Matrix(Matrix &&m) noexcept;
     Matrix(size_t n, size_t m);
     Matrix(const value_type &x, size_t n, size_t m);
-    Matrix(const value_type &px, size_t n, size_t m);
+    Matrix(const value_type *px, size_t n, size_t m);
     ~Matrix();
 
     // assignment
@@ -41,14 +42,21 @@ namespace CppNNet2 {
     Matrix &operator=(const value_type &x);
 
     // element access
-    const value_type &operator[](size_t i) const;
-    value_type &operator[](size_t i);
-    const value_type &operator()(size_t i, size_t j) const;
-    value_type &operator()(size_t i, size_t j);
-    const value_type cat(size_t i) const;
-    value_type &at(size_t i);
-    const value_type &cat(size_t i, size_t j) const;
-    value_type &at(size_t i, size_t j);
+    const value_type &operator[](size_t i) const { return begin[i]; }
+
+    value_type &operator[](size_t i) { return begin[i]; }
+
+    const value_type &operator()(size_t i, size_t j) const { return begin[i * _cols + j]; }
+
+    value_type &operator()(size_t i, size_t j) { return begin[i * _cols + j]; }
+
+    const value_type cat(size_t i) const { return begin[i]; }
+
+    value_type &at(size_t i) { return begin[i]; }
+
+    const value_type &cat(size_t i, size_t j) const { return begin[i * _cols + j]; }
+
+    value_type &at(size_t i, size_t j) { return begin[i * _cols + j]; }
 
     // unary operators:
     Matrix operator+() const;
@@ -88,6 +96,9 @@ namespace CppNNet2 {
     void clear(size_t capacity);
     void resize(size_t n, value_type x = value_type());
     void resize(size_t n, size_t m, value_type x = value_type());
+
+  private:
+    Matrix &assign_range(const value_type *f, const value_type *l);
   };
 
   template<class T>
@@ -133,7 +144,7 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> operator^(const Matrix<T> &x, const T &y);
   template<class T>
-  Matrix<T> operator^(const T &y, const Matrix<T> &y);
+  Matrix<T> operator^(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator&(const Matrix<T> &x, const Matrix<T> &y);
@@ -287,6 +298,209 @@ namespace CppNNet2 {
 
   template<class T>
   Matrix<T>::Matrix(const value_type *p, size_t n) {
+    _cols = _size = n;
+    _rows = 1;
+    begin = p;
+    end = p + n;
+  }
+
+  template<class T>
+  Matrix<T>::Matrix(const Matrix<T> &m) : begin(0), end(0) {
+    _rows = m.rows();
+    _cols = m.cols();
+    _size = m.size();
+    if (m.size()) {
+      begin = end = static_cast<value_type *>(malloc(sizeof(value_type) * m.size()));
+      try {
+        for (value_type *p = m.begin; p != m.end; ++end, ++p)
+          new(end) value_type(*p);
+      } catch (...) {
+        clear(m.size());
+        throw;
+      }
+    }
+  }
+
+  template<class T>
+  Matrix<T>::Matrix(Matrix<T> &&m) noexcept : begin(m.begin), end(m.end) {
+    _rows = m.rows();
+    _cols = m.cols();
+    _size = m.size();
+    m.begin = m.end = nullptr;
+  }
+
+  template<class T>
+  Matrix<T>::Matrix(size_t n, size_t m) : begin(0), end(0) {
+    _rows = n;
+    _cols = m;
+    _size = n * m;
+    if (n && m) {
+      begin = end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      try {
+        for (size_t n_left = _size; n_left; --n_left, ++end)
+          new(end) value_type();
+      } catch (...) {
+        clear(n);
+        throw;
+      }
+    }
+  }
+
+  template<class T>
+  Matrix<T>::Matrix(const value_type &x, size_t n, size_t m) : begin(0), end(0) {
+    resize(n * m, x);
+  }
+
+  template<class T>
+  Matrix<T>::Matrix(const value_type *px, size_t n, size_t m) {
+    _rows = n;
+    _cols = m;
+    _size = n * m;
+    begin = px;
+    end = px + _size;
+  }
+
+  template<class T>
+  Matrix<T>::~Matrix() {
+    clear(_size);
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator=(const Matrix<T> &m) {
+    if (this != *m)
+      return assign_range(m.begin, m.end);
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator=(Matrix<T> &&m) noexcept {
+    clear(size());
+    begin = m.begin;
+    end = m.end;
+    m.begin = nullptr;
+    m.end = nullptr;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator=(const value_type &x) {
+    std::fill(begin, end, x);
+  }
+
+  template<class T>
+  Matrix<T> Matrix<T>::operator+() const {
+    Matrix<value_type> r;
+    size_t n = size();
+    if (n) {
+      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      for (const value_type *p = begin; n; ++r.end, ++p, --n)
+        new(r.end) value_type(+*p);
+    }
+    return r;
+  }
+
+  template<class T>
+  Matrix<T> Matrix<T>::operator-() const {
+    Matrix<value_type> r;
+    size_t n = size();
+    if (n) {
+      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      for (const value_type *p = begin; n; ++r.end, ++p, --n)
+        new(r.end) value_type(-*p);
+    }
+  }
+
+  template<class T>
+  Matrix<T> Matrix<T>::operator~() const {
+    Matrix<value_type> r;
+    size_t n = size();
+    if (n) {
+      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      for (const value_type *p = begin; n; ++r.end, ++p, --n)
+        new(r.end) value_type(~*p);
+    }
+  }
+
+  template<class T>
+  Matrix<bool> Matrix<T>::operator!() const {
+    Matrix<bool> r;
+    size_t n = size();
+    if (n) {
+      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(bool) * _size));
+      for (const value_type *p = begin; n; ++r.end, ++p, --n)
+        new(r.end) bool(~*p);
+    }
+    return r;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator*=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p *= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator/=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p /= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator%=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p %= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator+=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p += x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator-=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p -= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator^=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p ^= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator&=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p &= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator|=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p |= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator<<=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p <<= x;
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator>>=(const value_type &x) {
+    for (value_type *p = begin; p != end; ++p)
+      *p >>= x;
+    return *this;
   }
 }
 
