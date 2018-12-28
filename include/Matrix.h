@@ -6,8 +6,11 @@
 #define CPPNNET2_MATRIX_H
 
 #include <cstddef>
+#include <cstdlib>
+#include <cmath>
 #include <algorithm>
 #include <memory>
+#include <cblas.h>
 
 namespace CppNNet2 {
   template<class T>
@@ -26,8 +29,7 @@ namespace CppNNet2 {
     // construct/destroy
     Matrix() : begin(0), end(0) { _rows = _cols = _size = 0; }
 
-    inline explicit Matrix(size_t n);
-    Matrix(const value_type &x, size_t n);
+    explicit Matrix(size_t n);
     Matrix(const value_type *px, size_t n);
     Matrix(const Matrix &m);
     Matrix(Matrix &&m) noexcept;
@@ -87,29 +89,34 @@ namespace CppNNet2 {
     Matrix &operator<<=(const Matrix &m);
     Matrix &operator>>=(const Matrix &m);
 
-    void swap(Matrix &v) noexcept;
+    constexpr size_t size() const { return _size; }
 
-    constexpr size_t size();
-    constexpr size_t rows();
-    constexpr size_t cols();
+    constexpr size_t rows() const { return _rows; }
+
+    constexpr size_t cols() const { return _cols; }
 
     void clear(size_t capacity);
     void resize(size_t n, value_type x = value_type());
     void resize(size_t n, size_t m, value_type x = value_type());
 
+    T *data() { return begin; }
+
+    const T *data() const { return begin; }
+
   private:
     Matrix &assign_range(const value_type *f, const value_type *l);
   };
 
-  template<class T>
-  void swap(Matrix<T> &x, Matrix<T> y);
+  Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y);
+
+  Matrix<double> operator*(const Matrix<double> &x, const Matrix<double> &y);
 
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const T &y);
   template<class T>
-  Matrix<T> operator*(const T &y, const Matrix<T> &x);
+  Matrix<T> operator*(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator/(const Matrix<T> &x, const Matrix<T> &y);
@@ -130,14 +137,14 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> operator+(const Matrix<T> &x, const T &y);
   template<class T>
-  Matrix<T> operator+(const T &y, const Matrix<T> &x);
+  Matrix<T> operator+(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator-(const Matrix<T> &x, const Matrix<T> y);
   template<class T>
   Matrix<T> operator-(const Matrix<T> &x, const T &y);
   template<class T>
-  Matrix<T> operator-(const T &y, const Matrix<T> &x);
+  Matrix<T> operator-(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator^(const Matrix<T> &x, const Matrix<T> y);
@@ -276,11 +283,11 @@ namespace CppNNet2 {
 // end
 
   template<class T>
-  inline Matrix<T>::Matrix(size_t n) : begin(0), end(0) {
+  Matrix<T>::Matrix(size_t n) : begin(0), end(0) {
     _cols = _size = n;
     _rows = 1;
     if (n) {
-      begin = end = static_cast<value_type *>(malloc(sizeof(value_type) * n));
+      begin = end = static_cast<value_type *>(std::malloc(sizeof(value_type) * n));
       try {
         for (size_t n_left = n; n_left; --n_left, ++end)
           new(end) value_type();
@@ -289,11 +296,6 @@ namespace CppNNet2 {
         throw;
       }
     }
-  }
-
-  template<class T>
-  inline Matrix<T>::Matrix(const value_type &x, size_t n) : begin(0), end(0) {
-    resize(n, x);
   }
 
   template<class T>
@@ -310,7 +312,7 @@ namespace CppNNet2 {
     _cols = m.cols();
     _size = m.size();
     if (m.size()) {
-      begin = end = static_cast<value_type *>(malloc(sizeof(value_type) * m.size()));
+      begin = end = static_cast<value_type *>(std::malloc(sizeof(value_type) * m.size()));
       try {
         for (value_type *p = m.begin; p != m.end; ++end, ++p)
           new(end) value_type(*p);
@@ -335,7 +337,7 @@ namespace CppNNet2 {
     _cols = m;
     _size = n * m;
     if (n && m) {
-      begin = end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      begin = end = static_cast<value_type *>(std::malloc(sizeof(value_type) * _size));
       try {
         for (size_t n_left = _size; n_left; --n_left, ++end)
           new(end) value_type();
@@ -348,7 +350,7 @@ namespace CppNNet2 {
 
   template<class T>
   Matrix<T>::Matrix(const value_type &x, size_t n, size_t m) : begin(0), end(0) {
-    resize(n * m, x);
+    resize(n, m, x);
   }
 
   template<class T>
@@ -385,6 +387,7 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> &Matrix<T>::operator=(const value_type &x) {
     std::fill(begin, end, x);
+    return *this;
   }
 
   template<class T>
@@ -392,7 +395,7 @@ namespace CppNNet2 {
     Matrix<value_type> r;
     size_t n = size();
     if (n) {
-      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      r.begin = r.end = static_cast<value_type *>(std::malloc(sizeof(value_type) * _size));
       for (const value_type *p = begin; n; ++r.end, ++p, --n)
         new(r.end) value_type(+*p);
     }
@@ -404,7 +407,7 @@ namespace CppNNet2 {
     Matrix<value_type> r;
     size_t n = size();
     if (n) {
-      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      r.begin = r.end = static_cast<value_type *>(std::malloc(sizeof(value_type) * _size));
       for (const value_type *p = begin; n; ++r.end, ++p, --n)
         new(r.end) value_type(-*p);
     }
@@ -415,7 +418,7 @@ namespace CppNNet2 {
     Matrix<value_type> r;
     size_t n = size();
     if (n) {
-      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(value_type) * _size));
+      r.begin = r.end = static_cast<value_type *>(std::malloc(sizeof(value_type) * _size));
       for (const value_type *p = begin; n; ++r.end, ++p, --n)
         new(r.end) value_type(~*p);
     }
@@ -426,7 +429,7 @@ namespace CppNNet2 {
     Matrix<bool> r;
     size_t n = size();
     if (n) {
-      r.begin = r.end = static_cast<value_type *>(malloc(sizeof(bool) * _size));
+      r.begin = r.end = static_cast<value_type *>(std::malloc(sizeof(bool) * _size));
       for (const value_type *p = begin; n; ++r.end, ++p, --n)
         new(r.end) bool(~*p);
     }
@@ -501,6 +504,714 @@ namespace CppNNet2 {
     for (value_type *p = begin; p != end; ++p)
       *p >>= x;
     return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator*=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) *= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator/=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) /= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator%=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) %= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator+=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) += m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator-=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) -= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator^=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) ^= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator|=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) |= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator&=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) &= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator<<=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) <<= m[i];
+    return *this;
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::operator>>=(const Matrix &m) {
+    for (size_t i = 0; i < m.size(); i++)
+      at(i) >>= m[i];
+    return *this;
+  }
+
+  template<class T>
+  void Matrix<T>::clear(size_t capacity) {
+    if (begin != nullptr) {
+      while (end != begin)
+        (--end)->~value_type();
+      std::free(begin);
+      begin = end = nullptr;
+    }
+  }
+
+  template<class T>
+  void Matrix<T>::resize(size_t n, value_type x) {
+    _cols = _size = n;
+    _rows = 1;
+    clear(size());
+    if (n) {
+      begin = end = static_cast<value_type *>(std::malloc(n * sizeof(value_type)));
+      try {
+        for (size_t n_left = n; n_left; --n_left, ++end)
+          new(end) value_type(x);
+      } catch (...) {
+        clear(n);
+        throw;
+      }
+    }
+  }
+
+  template<class T>
+  void Matrix<T>::resize(size_t n, size_t m, value_type x) {
+    _rows = n;
+    _cols = m;
+    _size = n * m;
+    clear(size());
+    if (_size) {
+      begin = end = static_cast<value_type *>(std::malloc(_size * sizeof(value_type)));
+      try {
+        for (size_t n_left = _size; n_left; --n_left, ++end)
+          new(end) value_type(x);
+      } catch (...) {
+        clear(_size);
+        throw;
+      }
+    }
+  }
+
+  template<class T>
+  Matrix<T> &Matrix<T>::assign_range(const value_type *f, const value_type *l) {
+    size_t n = l - f;
+    if (size() != n) {
+      clear(size());
+      begin = static_cast<value_type *>(std::malloc(n * sizeof(value_type)));
+      end = begin + n;
+      std::uninitialized_copy(f, l, begin);
+    } else
+      std::copy(f, l, begin);
+    return *this;
+  }
+
+  template<class T, class Function>
+  Matrix<T> apply_operator(const Matrix<T> &x, Function fn) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = fn(x[i]);
+    return output;
+  }
+
+  Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y) {
+    const int n = static_cast<int>(x.rows()), m = static_cast<int>(y.cols()), k = static_cast<int>(x.cols());
+    const int lda = n, ldb = k, ldc = n;
+    const float *a_ptr = x.data(), *b_ptr = y.data();
+    const float alpha = 1.0, beta = 0.0;
+    Matrix<float> output(x.rows(), y.cols());
+    float *c_ptr = output.data();
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, m, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
+    return output;
+  }
+
+  Matrix<double> operator*(const Matrix<double> &x, const Matrix<double> &y) {
+    const int n = static_cast<int>(x.rows()), m = static_cast<int>(y.cols()), k = static_cast<int>(x.cols());
+    const int lda = n, ldb = k, ldc = n;
+    const double *a_ptr = x.data(), *b_ptr = y.data();
+    const double alpha = 1.0, beta = 0.0;
+    Matrix<double> output(x.rows(), y.cols());
+    double *c_ptr = output.data();
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, m, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), y.cols());
+    output = 0;
+    for (size_t i = 0; i < x.rows(); i++) {
+      for (size_t j = 0; j < y.cols(); j++) {
+        for (size_t k = 0; k < x.cols(); k++)
+          output(i, j) += x(i, k) * y(k, j);
+      }
+    }
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator*(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] * y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator*(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] * y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator/(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] / y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator/(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] / y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator/(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x / y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator%(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] % y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator%(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] % y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator%(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output = x % y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator+(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] + y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator+(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] + y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator+(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x + y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator-(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] - y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator-(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] - y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator-(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x - y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator^(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] ^ y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator^(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] ^ y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator^(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x ^ y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator&(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] & y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator&(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] & y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator&(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x & y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator|(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] | y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator|(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] | y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator|(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x | y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator<<(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] << y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator<<(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] << y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator<<(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x << y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator>>(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] >> y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator>>(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] >> y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> operator>>(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x >> y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator&&(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] && y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator&&(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] && y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator&&(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x && y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator||(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] || y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator||(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] || y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator||(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x || y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator==(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] == y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator==(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] == y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator==(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x == y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator!=(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] != y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator!=(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] != y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator!=(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x != y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] < y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] < y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x < y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] > y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] > y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x > y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<=(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] <= y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<=(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] <= y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator<=(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x <= y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>=(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] >= y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>=(const Matrix<T> &x, const T &y) {
+    Matrix<bool> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] >= y;
+    return output;
+  }
+
+  template<class T>
+  Matrix<bool> operator>=(const T &x, const Matrix<T> &y) {
+    Matrix<bool> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x >= y[i];
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> abs(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::abs(in); });
+  }
+
+  template<class T>
+  Matrix<T> acos(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::acos(in); });
+  }
+
+  template<class T>
+  Matrix<T> asin(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::asin(in); });
+  }
+
+  template<class T>
+  Matrix<T> atan2(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = std::atan2(x[i], y[i]);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> atan2(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = std::atan2(x[i], y);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> atan2(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = std::atan2(x, y[i]);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> cos(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::cos(in); });
+  }
+
+  template<class T>
+  Matrix<T> cosh(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::cosh(in); });
+  }
+
+  template<class T>
+  Matrix<T> exp(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::exp(in); });
+  }
+
+  template<class T>
+  Matrix<T> log(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::log(in); });
+  }
+
+  template<class T>
+  Matrix<T> log10(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::log10(in); });
+  }
+
+  template<class T>
+  Matrix<T> pow(const Matrix<T> &x, const Matrix<T> &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = std::pow(x[i], y[i]);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> pow(const Matrix<T> &x, const T &y) {
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = std::pow(x[i], y);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> pow(const T &x, const Matrix<T> &y) {
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = std::pow(x, y[i]);
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> sin(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::sin(in); });
+  }
+
+  template<class T>
+  Matrix<T> sinh(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::sinh(in); });
+  }
+
+  template<class T>
+  Matrix<T> sqrt(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::sqrt(in); });
+  }
+
+  template<class T>
+  Matrix<T> tan(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::tan(in); });
+  }
+
+  template<class T>
+  Matrix<T> tanh(const Matrix<T> &x) {
+    return apply_operator(x, [](T in) { return std::tanh(in); });
   }
 }
 

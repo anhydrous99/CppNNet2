@@ -13,16 +13,8 @@ HunterGate(
 project(CppNNet2)
 set(CMAKE_CXX_STANDARD 14)
 
-hunter_add_package(ZLIB)
-hunter_add_package(CURL)
-hunter_add_package(nlohmann_json)
-hunter_add_package(SDL_mixer)
 hunter_add_package(GTest)
 hunter_add_package(OpenBLAS)
-find_package(ZLIB CONFIG REQUIRED)
-find_package(CURL CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
-find_package(SDL_mixer CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 find_package(OpenBLAS CONFIG REQUIRED)
 
@@ -33,5 +25,4 @@ add_library(CppNNet2 INTERFACE)
 enable_testing()
 
 add_executable(Matrix_Test tests/Matrix_Tests.cpp)
-
-target_link_libraries(Matrix_Test CppNNet2 GTest::main OpenBLAS::OpenBLAS)
+target_link_libraries(Matrix_Test CppNNet2 OpenBLAS::OpenBLAS GTest::main)
