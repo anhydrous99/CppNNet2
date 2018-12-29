@@ -280,6 +280,13 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x);
 
+  enum CppNNet_CONCAT_TYPE {
+    HORIZONTAL, VERTICAL
+  };
+
+  template<class T>
+  Matrix<T> concat(CppNNet_CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y);
+
 // end
 
   template<class T>
@@ -1212,6 +1219,31 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x) {
     return apply_operator(x, [](T in) { return std::tanh(in); });
+  }
+
+  template<class T>
+  Matrix<T> concat(CppNNet_CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y) {
+    if (contype == HORIZONTAL) {
+      Matrix<T> output(x.rows(), x.cols() + y.cols());
+      for (size_t i = 0; i < x.rows(); i++) {
+        for (size_t j = 0; j < x.cols(); j++)
+          output(i, j) = x(i, j);
+        for (size_t j = x.cols(); j < x.cols() + y.cols(); j++)
+          output(i, j) = y(i, j - x.cols());
+      }
+      return output;
+    } else {
+      Matrix<T> output(x.rows() + y.rows(), x.cols());
+      for (size_t i = 0; i < x.rows(); i++) {
+        for (size_t j = 0; j < x.cols(); j++)
+          output(i, j) = x(i, j);
+      }
+      for (size_t i = x.rows(); i < x.rows() + y.rows(); i++) {
+        for (size_t j = 0; j < x.cols(); j++)
+          output(i, j) = y(i - x.rows(), j);
+      }
+      return output;
+    }
   }
 }
 
