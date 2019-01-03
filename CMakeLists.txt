@@ -24,5 +24,5 @@ add_library(CppNNet2 INTERFACE)
 
 enable_testing()
 
-add_executable(Matrix_Test tests/Matrix_Tests.cpp)
-target_link_libraries(Matrix_Test CppNNet2 OpenBLAS::OpenBLAS GTest::main)
+add_executable(Tests tests/Tests.cpp)
+target_link_libraries(Tests CppNNet2 OpenBLAS::OpenBLAS GTest::main)

@@ -2,12 +2,12 @@
 // Created by ubrdog on 12/25/18.
 //
 
-#include "Matrix.h"
+#include "CppNNet2.h"
 #include <gtest/gtest.h>
 
 using namespace CppNNet2;
 
-TEST(MatrixMultiplication, Float) {
+TEST(Matrix, FloatMultiplication) {
   Matrix<float> smat(2, 2);
   smat(0, 0) = 1.0;
   smat(0, 1) = 2.0;
@@ -28,7 +28,7 @@ TEST(MatrixMultiplication, Float) {
   }
 }
 
-TEST(MatrixMultiplication, Double) {
+TEST(Matrix, DoubleMultiplication) {
   Matrix<double> smat(2, 2);
   smat(0, 0) = 1.0;
   smat(0, 1) = 2.0;
@@ -49,7 +49,7 @@ TEST(MatrixMultiplication, Double) {
   }
 }
 
-TEST(MatrixMultiplication, Integer) {
+TEST(Matrix, IntegerMultiplication) {
   Matrix<int> smat(2, 2);
   smat(0, 0) = 1;
   smat(0, 1) = 2;
@@ -70,7 +70,7 @@ TEST(MatrixMultiplication, Integer) {
   }
 }
 
-TEST(MatrixConcatenation, Horizontal) {
+TEST(Matrix, HorizontalConcatenation) {
   Matrix<float> smat1(2, 2);
   Matrix<float> smat2(2, 2);
   Matrix<float> result(2, 4);
@@ -102,7 +102,7 @@ TEST(MatrixConcatenation, Horizontal) {
   }
 }
 
-TEST(MatrixConcatenation, Vertical) {
+TEST(Matrix, VerticalConcatenation) {
   Matrix<float> smat1(2, 2);
   Matrix<float> smat2(2, 2);
   Matrix<float> result(4, 2);
