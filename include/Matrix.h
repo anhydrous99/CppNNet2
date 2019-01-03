@@ -280,12 +280,12 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x);
 
-  enum CppNNet_CONCAT_TYPE {
+  enum CONCAT_TYPE {
     HORIZONTAL, VERTICAL
   };
 
   template<class T>
-  Matrix<T> concat(CppNNet_CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y);
+  Matrix<T> concat(CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y);
 
 // end
 
@@ -1222,7 +1222,7 @@ namespace CppNNet2 {
   }
 
   template<class T>
-  Matrix<T> concat(CppNNet_CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y) {
+  Matrix<T> concat(CONCAT_TYPE contype, const Matrix<T> &x, const Matrix<T> &y) {
     if (contype == HORIZONTAL) {
       Matrix<T> output(x.rows(), x.cols() + y.cols());
       for (size_t i = 0; i < x.rows(); i++) {
