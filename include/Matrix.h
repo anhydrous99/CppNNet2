@@ -10,7 +10,11 @@
 #include <cmath>
 #include <algorithm>
 #include <memory>
+
+#ifdef USES_OPENBLAS
 #include <cblas.h>
+
+#endif
 
 namespace CppNNet2 {
   template<class T>
@@ -649,6 +653,7 @@ namespace CppNNet2 {
     return output;
   }
 
+#ifdef USES_OPENBLAS
   Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y) {
     const int n = static_cast<int>(x.rows()), m = static_cast<int>(y.cols()), k = static_cast<int>(x.cols());
     const int lda = n, ldb = k, ldc = n;
@@ -670,6 +675,8 @@ namespace CppNNet2 {
     cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, m, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
     return output;
   }
+
+#endif
 
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y) {
