@@ -18,12 +18,10 @@ namespace CppNNet2 {
     public:
         // constructor & destructor:
         Layer(std::shared_ptr<Layer> &previous_layer, std::shared_ptr<Layer> &next_layer);
-
         ~Layer() = default;
 
         // feeding functions:
         virtual Matrix <netfl> feedforward(Matrix <netfl> &input);
-
         virtual Matrix <netfl> feedbackward(Matrix <netfl> &input);
 
         // msc:

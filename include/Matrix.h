@@ -13,7 +13,6 @@
 
 #ifdef USES_OPENBLAS
 #include <cblas.h>
-
 #endif
 
 namespace CppNNet2 {
@@ -654,6 +653,7 @@ namespace CppNNet2 {
   }
 
 #ifdef USES_OPENBLAS
+
   Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y) {
     const int n = static_cast<int>(x.rows()), m = static_cast<int>(y.cols()), k = static_cast<int>(x.cols());
     const int lda = n, ldb = k, ldc = n;
