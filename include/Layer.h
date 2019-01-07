@@ -21,8 +21,8 @@ namespace CppNNet2 {
         ~Layer() = default;
 
         // feeding functions:
-        virtual Matrix <netfl> feedforward(Matrix <netfl> &input);
-        virtual Matrix <netfl> feedbackward(Matrix <netfl> &input);
+        virtual Matrix<netfl> feedforward(Matrix<netfl> &input);
+        virtual Matrix<netfl> feedbackward(Matrix<netfl> &input);
 
         // msc:
         std::shared_ptr<Layer> getptr();
@@ -33,11 +33,11 @@ namespace CppNNet2 {
         Next_layer = next_layer;
     }
 
-    Matrix <netfl> Layer::feedforward(Matrix <netfl> &input) {
+    Matrix<netfl> Layer::feedforward(Matrix<netfl> &input) {
         return (Previous_layer) ? Previous_layer->feedforward(input) : input;
     }
 
-    Matrix <netfl> Layer::feedbackward(Matrix <netfl> &input) {
+    Matrix<netfl> Layer::feedbackward(Matrix<netfl> &input) {
         return (Next_layer) ? Next_layer->feedbackward(input) : input;
     }
 
