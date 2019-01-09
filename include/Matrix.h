@@ -129,28 +129,28 @@ namespace CppNNet2 {
   Matrix<T> operator/(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator%(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<T> operator%(const Matrix<T> &x, const Matrix<T>& y);
   template<class T>
   Matrix<T> operator%(const Matrix<T> &x, const T &y);
   template<class T>
   Matrix<T> operator%(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator+(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<T> operator+(const Matrix<T> &x, const Matrix<T>& y);
   template<class T>
   Matrix<T> operator+(const Matrix<T> &x, const T &y);
   template<class T>
   Matrix<T> operator+(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator-(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<T> operator-(const Matrix<T> &x, const Matrix<T>& y);
   template<class T>
   Matrix<T> operator-(const Matrix<T> &x, const T &y);
   template<class T>
   Matrix<T> operator-(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator^(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<T> operator^(const Matrix<T> &x, const Matrix<T>& y);
   template<class T>
   Matrix<T> operator^(const Matrix<T> &x, const T &y);
   template<class T>

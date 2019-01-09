@@ -10,6 +10,7 @@
 #include <memory>
 
 namespace CppNNet2 {
+  enum layer_placement { NEXT, PREVIOUS };
     class Layer : private std::enable_shared_from_this<Layer> {
         // data:
         std::shared_ptr<Layer> Previous_layer = nullptr;
@@ -17,7 +18,9 @@ namespace CppNNet2 {
 
     public:
         // constructor & destructor:
+        Layer() = default;
         Layer(std::shared_ptr<Layer> &previous_layer, std::shared_ptr<Layer> &next_layer);
+        Layer(layer_placement placement, std::shared_ptr<Layer> &layer);
         ~Layer() = default;
 
         // feeding functions:
@@ -31,6 +34,13 @@ namespace CppNNet2 {
     Layer::Layer(std::shared_ptr<CppNNet2::Layer> &previous_layer, std::shared_ptr<CppNNet2::Layer> &next_layer) {
         Previous_layer = previous_layer;
         Next_layer = next_layer;
+    }
+
+    Layer::Layer(CppNNet2::layer_placement placement, std::shared_ptr<CppNNet2::Layer> &layer) {
+      if (placement == NEXT)
+        Next_layer = layer;
+      else
+        Previous_layer = layer;
     }
 
     Matrix<netfl> Layer::feedforward(Matrix<netfl> &input) {
