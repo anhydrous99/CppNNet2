@@ -379,7 +379,7 @@ namespace CppNNet2 {
 
   template<class T>
   Matrix<T> &Matrix<T>::operator=(const Matrix<T> &m) {
-    if (this != *m)
+    if (this != &m)
       return assign_range(m.begin, m.end);
     return *this;
   }
