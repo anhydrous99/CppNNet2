@@ -213,18 +213,18 @@ namespace CppNNet2 {
   Matrix<bool> operator!=(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<bool> operator<(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<bool> operator<(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
   Matrix<bool> operator<(const Matrix<T> &x, const T &y);
   template<class T>
   Matrix<bool> operator<(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<bool> operator>(const Matrix<T> x, const Matrix<T> y);
+  Matrix<bool> operator>(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
-  Matrix<bool> operator>(const Matrix<T> x, const T &y);
+  Matrix<bool> operator>(const Matrix<T> &x, const T &y);
   template<class T>
-  Matrix<bool> operator>(const T &x, const Matrix<T> y);
+  Matrix<bool> operator>(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator<=(const Matrix<T> &x, const Matrix<T> &y);
@@ -248,7 +248,7 @@ namespace CppNNet2 {
   Matrix<T> asin(const Matrix<T> &x);
 
   template<class T>
-  Matrix<T> atan2(const Matrix<T> &x, const Matrix<T> y);
+  Matrix<T> atan2(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
   Matrix<T> atan2(const Matrix<T> &x, const T &y);
   template<class T>
