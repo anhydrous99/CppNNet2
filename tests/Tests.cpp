@@ -134,6 +134,33 @@ TEST(Matrix, VerticalConcatenation) {
   }
 }
 
+TEST(Matrix, SimpleMathOperations) {
+  Matrix<double> mat1(1, 1);
+  Matrix<double> mat2(1, 1);
+  double abs_error = 0.001;
+  double pw = 1.5;
+
+  mat1[0] = -1.0;
+  mat2[0] = 5.0;
+
+  EXPECT_EQ(abs(mat1)[0], 1);
+  EXPECT_NEAR(acos(mat1)[0], 3.1415, abs_error);
+  EXPECT_NEAR(asin(mat1)[0], -1.5707, abs_error);
+  EXPECT_NEAR(cos(mat1)[0], 0.5403, abs_error);
+  EXPECT_NEAR(sin(mat1)[0], -0.8415, abs_error);
+  EXPECT_NEAR(cosh(mat1)[0], 1.5431, abs_error);
+  EXPECT_NEAR(sinh(mat1)[0], -1.1752, abs_error);
+  EXPECT_NEAR(tan(mat1)[0], -1.5574, abs_error);
+  EXPECT_NEAR(tanh(mat1)[0], -0.7616, abs_error);
+  EXPECT_NEAR(exp(mat1)[0], 0.3679, abs_error);
+  EXPECT_NEAR(log(mat2)[0], 1.6094, abs_error);
+  EXPECT_NEAR(log10(mat2)[0], 0.6989, abs_error);
+  EXPECT_NEAR(sqrt(mat2)[0], 2.2361, abs_error);
+  EXPECT_NEAR(pow(mat2, mat2)[0], 3125.0, abs_error);
+  EXPECT_NEAR(pow(mat2, pw)[0], 11.1803, abs_error);
+  EXPECT_NEAR(pow(pw, mat2)[0], 7.5937, abs_error);
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
