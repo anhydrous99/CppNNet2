@@ -12,7 +12,9 @@
 #include <memory>
 
 #ifdef USES_OPENBLAS
+
 #include <cblas.h>
+
 #endif
 
 namespace CppNNet2 {
@@ -33,17 +35,26 @@ namespace CppNNet2 {
     Matrix() : begin(0), end(0) { _rows = _cols = _size = 0; }
 
     explicit Matrix(size_t n);
+
     Matrix(const value_type *px, size_t n);
+
     Matrix(const Matrix &m);
+
     Matrix(Matrix &&m) noexcept;
+
     Matrix(size_t n, size_t m);
+
     Matrix(const value_type &x, size_t n, size_t m);
+
     Matrix(const value_type *px, size_t n, size_t m);
+
     ~Matrix();
 
     // assignment
     Matrix &operator=(const Matrix &m);
+
     Matrix &operator=(Matrix &&m) noexcept;
+
     Matrix &operator=(const value_type &x);
 
     // element access
@@ -65,31 +76,52 @@ namespace CppNNet2 {
 
     // unary operators:
     Matrix operator+() const;
+
     Matrix operator-() const;
+
     Matrix operator~() const;
+
     Matrix<bool> operator!() const;
 
     // computed assignment:
     Matrix &operator*=(const value_type &x);
+
     Matrix &operator/=(const value_type &x);
+
     Matrix &operator%=(const value_type &x);
+
     Matrix &operator+=(const value_type &x);
+
     Matrix &operator-=(const value_type &x);
+
     Matrix &operator^=(const value_type &x);
+
     Matrix &operator&=(const value_type &x);
+
     Matrix &operator|=(const value_type &x);
+
     Matrix &operator<<=(const value_type &x);
+
     Matrix &operator>>=(const value_type &x);
 
     Matrix &operator*=(const Matrix &m);
+
     Matrix &operator/=(const Matrix &m);
+
     Matrix &operator%=(const Matrix &m);
+
     Matrix &operator+=(const Matrix &m);
+
     Matrix &operator-=(const Matrix &m);
+
     Matrix &operator^=(const Matrix &m);
+
     Matrix &operator|=(const Matrix &m);
+
     Matrix &operator&=(const Matrix &m);
+
     Matrix &operator<<=(const Matrix &m);
+
     Matrix &operator>>=(const Matrix &m);
 
     constexpr size_t size() const { return _size; }
@@ -99,7 +131,9 @@ namespace CppNNet2 {
     constexpr size_t cols() const { return _cols; }
 
     void clear(size_t capacity);
+
     void resize(size_t n, value_type x = value_type());
+
     void resize(size_t n, size_t m, value_type x = value_type());
 
     T *data() { return begin; }
@@ -116,170 +150,220 @@ namespace CppNNet2 {
 
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator*(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator/(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator/(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator/(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator%(const Matrix<T> &x, const Matrix<T>& y);
+  Matrix<T> operator%(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator%(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator%(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator+(const Matrix<T> &x, const Matrix<T>& y);
+  Matrix<T> operator+(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator+(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator+(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator-(const Matrix<T> &x, const Matrix<T>& y);
+  Matrix<T> operator-(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator-(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator-(const T &x, const Matrix<T> &y);
 
   template<class T>
-  Matrix<T> operator^(const Matrix<T> &x, const Matrix<T>& y);
+  Matrix<T> operator^(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator^(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator^(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator&(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator&(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator&(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator|(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator|(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator|(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator<<(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator<<(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator<<(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> operator>>(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> operator>>(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> operator>>(const T &x, Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator&&(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator&&(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator&&(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator||(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator||(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator||(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator==(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator==(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator==(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator!=(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator!=(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator!=(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator<(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator<(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator<(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator>(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator>(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator>(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator<=(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator<=(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator<=(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<bool> operator>=(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<bool> operator>=(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<bool> operator>=(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> abs(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> acos(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> asin(const Matrix<T> &x);
 
   template<class T>
   Matrix<T> atan2(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> atan2(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> atan2(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> cos(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> cosh(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> exp(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> log(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> log10(const Matrix<T> &x);
 
   template<class T>
   Matrix<T> pow(const Matrix<T> &x, const Matrix<T> &y);
+
   template<class T>
   Matrix<T> pow(const Matrix<T> &x, const T &y);
+
   template<class T>
   Matrix<T> pow(const T &x, const Matrix<T> &y);
 
   template<class T>
   Matrix<T> sin(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> sinh(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> sqrt(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> tan(const Matrix<T> &x);
+
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x);
 

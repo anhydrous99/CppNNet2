@@ -12,42 +12,20 @@ namespace CppNNet2 {
   class Neural_Layer : public Layer {
     Matrix <netfl> Weights;
     Matrix <netfl> Biases;
+    Matrix <netfl> n;
+    bool n_evaluated = false;
   public:
-    Neural_Layer(Matrix <netfl> &weights, Matrix <netfl> &biases);
-    Neural_Layer(Matrix <netfl> &weights, Matrix <netfl> &biases, layer_placement placement,
-                 std::shared_ptr<Layer> layer);
-    Neural_Layer(Matrix <netfl> &weights, Matrix <netfl> &biases, std::shared_ptr<Layer> previous_layer,
-                 std::shared_ptr<Layer> next_layer);
 
-    Matrix <netfl> feedforward(Matrix <netfl> &input);
-    Matrix <netfl> feedbackward(Matrix <netfl> &input);
+    Matrix <netfl> feedforward(Matrix <netfl> &input) override;
   };
 
-  Neural_Layer::Neural_Layer(CppNNet2::Matrix<netfl> &weights, CppNNet2::Matrix<netfl> &biases) {
-    Weights = weights;
-    Biases = biases;
-  }
-
-  Neural_Layer::Neural_Layer(CppNNet2::Matrix<netfl> &weights, CppNNet2::Matrix<netfl> &biases,
-                             CppNNet2::layer_placement placement, std::shared_ptr<CppNNet2::Layer> layer) :
-      Layer(placement, layer) {
-    Weights = weights;
-    Biases = biases;
-  }
-
-  Neural_Layer::Neural_Layer(Matrix <netfl> &weights, Matrix <netfl> &biases,
-                             std::shared_ptr<Layer> previous_layer,
-                             std::shared_ptr<Layer> next_layer) : Layer(previous_layer, next_layer) {
-    Weights = weights;
-    Biases = biases;
-  }
 
   Matrix <netfl> Neural_Layer::feedforward(Matrix <netfl> &input) {
-    return Weights * input + Biases;
-  }
-
-  Matrix <netfl> Neural_Layer::feedbackward(Matrix <netfl> &input) {
-    // TODO
+    if (!n_evaluated) {
+      n = Weights * ((Previous_layer) ? feedforward(input) : input) + Biases;
+      n_evaluated = true;
+    }
+    return n;
   }
 }
 
