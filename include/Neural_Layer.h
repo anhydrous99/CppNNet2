@@ -11,7 +11,6 @@ namespace CppNNet2 {
 
   class Neural_Layer : public Layer {
     Matrix <netfl> Weights;
-    Matrix <netfl> Biases;
     Matrix <netfl> n;
     bool n_evaluated = false;
   public:
