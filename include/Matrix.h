@@ -144,9 +144,11 @@ namespace CppNNet2 {
     Matrix &assign_range(const value_type *f, const value_type *l);
   };
 
+#ifdef USES_OPENBLAS
   Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y);
 
   Matrix<double> operator*(const Matrix<double> &x, const Matrix<double> &y);
+#endif
 
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y);
