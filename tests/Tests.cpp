@@ -161,6 +161,31 @@ TEST(Matrix, SimpleMathOperations) {
   EXPECT_NEAR(pow(pw, mat2)[0], 7.5937, abs_error);
 }
 
+TEST(Matrix, Transpose) {
+  Matrix<int> mat1(3, 2);
+  Matrix<int> mat2(2, 3);
+
+  mat1(0, 0) = 0;
+  mat1(0, 1) = 1;
+  mat1(1, 0) = 2;
+  mat1(1, 1) = 3;
+  mat1(2, 0) = 4;
+  mat1(2, 1) = 5;
+
+  mat2(0, 0) = 0;
+  mat2(0, 1) = 2;
+  mat2(0, 2) = 4;
+  mat2(1, 0) = 1;
+  mat2(1, 1) = 3;
+  mat2(1, 2) = 5;
+
+  Matrix<int> mat3 = transpose(mat1);
+  Matrix<bool> boolMatrix = mat3 == mat2;
+  for (size_t i = 0; i < boolMatrix.size(); i++) {
+    EXPECT_TRUE(boolMatrix[i]);
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

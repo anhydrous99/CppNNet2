@@ -262,6 +262,8 @@ namespace CppNNet2 {
   Matrix<T> tan(const Matrix<T> &x);
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x);
+  template<class T>
+  Matrix<T> transpose(const Matrix<T> &x);
 
   enum CONCAT_TYPE {
     HORIZONTAL, VERTICAL
@@ -1206,6 +1208,17 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x) {
     return apply_operator(x, [](T in) { return std::tanh(in); });
+  }
+
+  template<class T>
+  Matrix<T> transpose(const Matrix<T> &x) {
+    const size_t N = x.rows(), M = x.cols();
+    Matrix<T> output(M, N);
+    for (size_t n = 0; n < N * M; n++) {
+      size_t i = n / N, j = n % N;
+      output[n] = x[M * j + i];
+    }
+    return output;
   }
 
   template<class T>
