@@ -186,6 +186,132 @@ TEST(Matrix, Transpose) {
   }
 }
 
+TEST(Matrix, FloatSum) {
+  Matrix<float> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<float> result(2, 2);
+  result(0, 0) = 2.0;
+  result(0, 1) = 4.0;
+  result(1, 0) = 6.0;
+  result(1, 1) = 8.0;
+
+  Matrix<float> to_check = smat + smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
+TEST(Matrix, DoubleSum) {
+  Matrix<double> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<double> result(2, 2);
+  result(0, 0) = 2.0;
+  result(0, 1) = 4.0;
+  result(1, 0) = 6.0;
+  result(1, 1) = 8.0;
+
+  Matrix<double> to_check = smat + smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
+TEST(Matrix, IntegerSum) {
+  Matrix<int> smat(2, 2);
+  smat(0, 0) = 1;
+  smat(0, 1) = 2;
+  smat(1, 0) = 3;
+  smat(1, 1) = 4;
+
+  Matrix<int> result(2, 2);
+  result(0, 0) = 2;
+  result(0, 1) = 4;
+  result(1, 0) = 6;
+  result(1, 1) = 8;
+
+  Matrix<int> to_check = smat + smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
+TEST(Matrix, FloatSubtraction) {
+  Matrix<float> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<float> result(2, 2);
+  result(0, 0) = 0.0;
+  result(0, 1) = 0.0;
+  result(1, 0) = 0.0;
+  result(1, 1) = 0.0;
+
+  Matrix<float> to_check = smat - smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
+TEST(Matrix, DoubleSubtraction) {
+  Matrix<double> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<double> result(2, 2);
+  result(0, 0) = 0.0;
+  result(0, 1) = 0.0;
+  result(1, 0) = 0.0;
+  result(1, 1) = 0.0;
+
+  Matrix<double> to_check = smat - smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
+TEST(Matrix, IntegerSubtraction) {
+  Matrix<int> smat(2, 2);
+  smat(0, 0) = 1;
+  smat(0, 1) = 2;
+  smat(1, 0) = 3;
+  smat(1, 1) = 4;
+
+  Matrix<int> result(2, 2);
+  result(0, 0) = 0;
+  result(0, 1) = 0;
+  result(1, 0) = 0;
+  result(1, 1) = 0;
+
+  Matrix<int> to_check = smat - smat;
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

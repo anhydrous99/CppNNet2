@@ -111,11 +111,6 @@ namespace CppNNet2 {
     Matrix &assign_range(const value_type *f, const value_type *l);
   };
 
-#ifdef USES_OPENBLAS
-  Matrix<float> operator*(const Matrix<float> &x, const Matrix<float> &y);
-  Matrix<double> operator*(const Matrix<double> &x, const Matrix<double> &y);
-#endif
-
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
@@ -737,6 +732,28 @@ namespace CppNNet2 {
     return output;
   }
 
+#ifdef USES_OPENBLAS
+
+  Matrix<float> operator+(const Matrix<float> &x, const Matrix<float> &y) {
+    Matrix<float> output = y;
+    const int n = x.size();
+    const int incY = 1, incX = 1;
+    const float alpha = 1.0;
+    cblas_saxpy(n, alpha, x.data(), incX, output.data(), incY);
+    return output;
+  }
+
+  Matrix<double> operator+(const Matrix<double> &x, const Matrix<double> &y) {
+    Matrix<double> output = y;
+    const int n = x.size();
+    const int incY = 1, incX = 1;
+    const double alpha = 1.0;
+    cblas_daxpy(n, alpha, x.data(), incX, output.data(), incY);
+    return output;
+  }
+
+#endif
+
   template<class T>
   Matrix<T> operator+(const Matrix<T> &x, const Matrix<T> &y) {
     Matrix<T> output(x.rows(), x.cols());
@@ -760,6 +777,28 @@ namespace CppNNet2 {
       output[i] = x + y[i];
     return output;
   }
+
+#ifdef USES_OPENBLAS
+
+  Matrix<float> operator-(const Matrix<float> &x, const Matrix<float> &y) {
+    Matrix<float> output = x;
+    const int n = x.size();
+    const int incY = 1, incX = 1;
+    const float alpha = -1.0;
+    cblas_saxpy(n, alpha, y.data(), incX, output.data(), incY);
+    return output;
+  }
+
+  Matrix<double> operator-(const Matrix<double> &x, const Matrix<double> &y) {
+    Matrix<double> output = x;
+    const int n = x.size();
+    const int incY = 1, incX = 1;
+    const double alpha = -1.0;
+    cblas_daxpy(n, alpha, y.data(), incX, output.data(), incY);
+    return output;
+  }
+
+#endif
 
   template<class T>
   Matrix<T> operator-(const Matrix<T> &x, const Matrix<T> &y) {
