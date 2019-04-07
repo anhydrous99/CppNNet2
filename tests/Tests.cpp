@@ -21,11 +21,7 @@ TEST(Matrix, FloatMultiplication) {
   result(1, 1) = 22.0;
 
   Matrix<float> to_check = smat * smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, DoubleMultiplication) {
@@ -42,11 +38,7 @@ TEST(Matrix, DoubleMultiplication) {
   result(1, 1) = 22.0;
 
   Matrix<double> to_check = smat * smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, IntegerMultiplication) {
@@ -63,11 +55,7 @@ TEST(Matrix, IntegerMultiplication) {
   result(1, 1) = 22;
 
   Matrix<int> to_check = smat * smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, HorizontalConcatenation) {
@@ -93,13 +81,7 @@ TEST(Matrix, HorizontalConcatenation) {
   result(1, 3) = 8.6;
 
   Matrix<float> to_check = concat(HORIZONTAL, smat1, smat2);
-  EXPECT_EQ(result.cols(), to_check.cols());
-  EXPECT_EQ(result.rows(), to_check.rows());
-
-  Matrix<bool> boolMatrix = result == to_check;
-  for (size_t i = 0; i < boolMatrix.size(); i++) {
-    EXPECT_TRUE(boolMatrix[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, VerticalConcatenation) {
@@ -125,13 +107,7 @@ TEST(Matrix, VerticalConcatenation) {
   result(3, 1) = 8.6;
 
   Matrix<float> to_check = concat(VERTICAL, smat1, smat2);
-  EXPECT_EQ(result.cols(), to_check.cols());
-  EXPECT_EQ(result.rows(), to_check.rows());
-
-  Matrix<bool> boolMatrix = result == to_check;
-  for (size_t i = 0; i < boolMatrix.size(); i++) {
-    EXPECT_TRUE(boolMatrix[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, SimpleMathOperations) {
@@ -180,10 +156,7 @@ TEST(Matrix, Transpose) {
   mat2(1, 2) = 5;
 
   Matrix<int> mat3 = transpose(mat1);
-  Matrix<bool> boolMatrix = mat3 == mat2;
-  for (size_t i = 0; i < boolMatrix.size(); i++) {
-    EXPECT_TRUE(boolMatrix[i]);
-  }
+  EXPECT_TRUE(all_equal(mat2, mat3));
 }
 
 TEST(Matrix, FloatSum) {
@@ -200,11 +173,7 @@ TEST(Matrix, FloatSum) {
   result(1, 1) = 8.0;
 
   Matrix<float> to_check = smat + smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, DoubleSum) {
@@ -221,11 +190,7 @@ TEST(Matrix, DoubleSum) {
   result(1, 1) = 8.0;
 
   Matrix<double> to_check = smat + smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, IntegerSum) {
@@ -242,11 +207,7 @@ TEST(Matrix, IntegerSum) {
   result(1, 1) = 8;
 
   Matrix<int> to_check = smat + smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, FloatSubtraction) {
@@ -263,11 +224,7 @@ TEST(Matrix, FloatSubtraction) {
   result(1, 1) = 0.0;
 
   Matrix<float> to_check = smat - smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, DoubleSubtraction) {
@@ -284,11 +241,7 @@ TEST(Matrix, DoubleSubtraction) {
   result(1, 1) = 0.0;
 
   Matrix<double> to_check = smat - smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, IntegerSubtraction) {
@@ -305,11 +258,7 @@ TEST(Matrix, IntegerSubtraction) {
   result(1, 1) = 0;
 
   Matrix<int> to_check = smat - smat;
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, KroneckerProduct) {
@@ -338,11 +287,7 @@ TEST(Matrix, KroneckerProduct) {
   result(3, 3) = 16.0;
 
   Matrix<float> to_check = kronecker_product(smat, smat);
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 TEST(Matrix, BoxProduct) {
@@ -371,11 +316,7 @@ TEST(Matrix, BoxProduct) {
   result(3, 3) = 16.0;
 
   Matrix<float> to_check = box_product(smat, smat);
-  Matrix<bool> exptrue = to_check == result;
-
-  for (size_t i = 0; i < exptrue.size(); i++) {
-    EXPECT_TRUE(exptrue[i]);
-  }
+  EXPECT_TRUE(all_equal(to_check, result));
 }
 
 int main(int argc, char **argv) {

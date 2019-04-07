@@ -258,6 +258,8 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x);
   template<class T>
+  bool all_equal(const Matrix<T> &x, const Matrix<T> &y);
+  template<class T>
   Matrix<T> transpose(const Matrix<T> &x);
   template<class T>
   Matrix<T> kronecker_product(const Matrix<T> &x, const Matrix<T> &y);
@@ -1251,6 +1253,17 @@ namespace CppNNet2 {
   template<class T>
   Matrix<T> tanh(const Matrix<T> &x) {
     return apply_operator(x, [](T in) { return std::tanh(in); });
+  }
+
+  template<class T>
+  bool all_equal(const Matrix<T> &x, const Matrix<T> &y) {
+    if (x.size() != y.size()) return false;
+    if (x.rows() != y.rows()) return false;
+    if (x.cols() != y.cols()) return false;
+    for (size_t i = 0; i < x.size(); i++) {
+      if (x[i] != y[i]) return false;
+    }
+    return true;
   }
 
   template<class T>
