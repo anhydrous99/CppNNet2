@@ -319,6 +319,23 @@ TEST(Matrix, BoxProduct) {
   EXPECT_TRUE(all_equal(to_check, result));
 }
 
+TEST(Matrix, HadamardProduct) {
+  Matrix<float> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<float> result(2, 2);
+  result(0, 0) = 1.0;
+  result(0, 1) = 4.0;
+  result(1, 0) = 9.0;
+  result(1, 1) = 16.0;
+
+  Matrix<float> to_check = hadamard_product(smat, smat);
+  EXPECT_TRUE(all_equal(to_check, result));
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -265,6 +265,8 @@ namespace CppNNet2 {
   Matrix<T> kronecker_product(const Matrix<T> &x, const Matrix<T> &y);
   template<class T>
   Matrix<T> box_product(const Matrix<T> &x, const Matrix<T> &y);
+  template<class T>
+  Matrix<T> hadamard_product(const Matrix<T> &x, const Matrix<T> &y);
 
   enum CONCAT_TYPE {
     HORIZONTAL, VERTICAL
@@ -1300,6 +1302,16 @@ namespace CppNNet2 {
         output(i, j) = x(i / p, j % q) * y(i % p, j / q);
       }
     }
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> hadamard_product(const Matrix<T> &x, const Matrix<T> &y) {
+    if (x.rows() != y.rows() || x.cols() != y.cols() || x.size() != y.size())
+      throw;
+    Matrix<T> output(x.rows(), x.cols());
+    for (size_t i = 0; i < x.size(); i++)
+      output[i] = x[i] * y[i];
     return output;
   }
 
