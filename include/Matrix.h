@@ -261,6 +261,8 @@ namespace CppNNet2 {
   Matrix<T> transpose(const Matrix<T> &x);
   template<class T>
   Matrix<T> kronecker_product(const Matrix<T> &x, const Matrix<T> &y);
+  template<class T>
+  Matrix<T> box_product(const Matrix<T> &x, const Matrix<T> &y);
 
   enum CONCAT_TYPE {
     HORIZONTAL, VERTICAL
@@ -1270,6 +1272,19 @@ namespace CppNNet2 {
     for (size_t i = 0; i < N; i++) {
       for (size_t j = 0; j < M; j++) {
         output(i, j) = x(i / p, j / q) * y(i % p, j % q);
+      }
+    }
+    return output;
+  }
+
+  template<class T>
+  Matrix<T> box_product(const Matrix<T> &x, const Matrix<T> &y) {
+    size_t p = y.rows(), q = y.cols();
+    size_t N = x.rows() * p, M = x.cols() * q;
+    Matrix<T> output(N, M);
+    for (size_t i = 0; i < N; i++) {
+      for (size_t j = 0; j < M; j++) {
+        output(i, j) = x(i / p, j % q) * y(i % p, j / q);
       }
     }
     return output;

@@ -345,6 +345,39 @@ TEST(Matrix, KroneckerProduct) {
   }
 }
 
+TEST(Matrix, BoxProduct) {
+  Matrix<float> smat(2, 2);
+  smat(0, 0) = 1.0;
+  smat(0, 1) = 2.0;
+  smat(1, 0) = 3.0;
+  smat(1, 1) = 4.0;
+
+  Matrix<float> result(4, 4);
+  result(0, 0) = 1.0;
+  result(0, 1) = 2.0;
+  result(0, 2) = 2.0;
+  result(0, 3) = 4.0;
+  result(1, 0) = 3.0;
+  result(1, 1) = 6.0;
+  result(1, 2) = 4.0;
+  result(1, 3) = 8.0;
+  result(2, 0) = 3.0;
+  result(2, 1) = 4.0;
+  result(2, 2) = 6.0;
+  result(2, 3) = 8.0;
+  result(3, 0) = 9.0;
+  result(3, 1) = 12.0;
+  result(3, 2) = 12.0;
+  result(3, 3) = 16.0;
+
+  Matrix<float> to_check = box_product(smat, smat);
+  Matrix<bool> exptrue = to_check == result;
+
+  for (size_t i = 0; i < exptrue.size(); i++) {
+    EXPECT_TRUE(exptrue[i]);
+  }
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
