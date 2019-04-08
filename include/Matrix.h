@@ -302,7 +302,7 @@ namespace CppNNet2 {
   }
 
   template<class T>
-  Matrix<T>::Matrix(const Matrix<T> &m) : begin(0), end(0) {
+  Matrix<T>::Matrix(const Matrix<T> &m) : begin(nullptr), end(nullptr) {
     _rows = m.rows();
     _cols = m.cols();
     _size = m.size();
@@ -327,7 +327,7 @@ namespace CppNNet2 {
   }
 
   template<class T>
-  Matrix<T>::Matrix(size_t n, size_t m) : begin(0), end(0) {
+  Matrix<T>::Matrix(size_t n, size_t m) : begin(nullptr), end(nullptr) {
     _rows = n;
     _cols = m;
     _size = n * m;
@@ -680,13 +680,13 @@ namespace CppNNet2 {
 
   Matrix<float> operator*(const Matrix<float> &x, const float &y) {
       Matrix<float> output = x;
-      cblas_sscal(output.size(), y, output.data(), 1);
+      cblas_sscal(static_cast<int>(output.size()), y, output.data(), 1);
       return output;
   }
 
   Matrix<double> operator*(const Matrix<double> &x, const double &y) {
       Matrix<double> output = x;
-      cblas_dscal(output.size(), y, output.data(), 1);
+      cblas_dscal(static_cast<int>(output.size()), y, output.data(), 1);
       return output;
   }
 
@@ -772,7 +772,7 @@ namespace CppNNet2 {
 
   Matrix<float> operator+(const Matrix<float> &x, const Matrix<float> &y) {
     Matrix<float> output = y;
-    const int n = x.size();
+    const int n = static_cast<int>(x.size());
     const int incY = 1, incX = 1;
     const float alpha = 1.0;
     cblas_saxpy(n, alpha, x.data(), incX, output.data(), incY);
@@ -781,7 +781,7 @@ namespace CppNNet2 {
 
   Matrix<double> operator+(const Matrix<double> &x, const Matrix<double> &y) {
     Matrix<double> output = y;
-    const int n = x.size();
+    const int n = static_cast<int>(x.size());
     const int incY = 1, incX = 1;
     const double alpha = 1.0;
     cblas_daxpy(n, alpha, x.data(), incX, output.data(), incY);
@@ -818,16 +818,16 @@ namespace CppNNet2 {
 
   Matrix<float> operator-(const Matrix<float> &x, const Matrix<float> &y) {
     Matrix<float> output = x;
-    const int n = x.size();
+    const int n = static_cast<int>(x.size());
     const int incY = 1, incX = 1;
-    const float alpha = -1.0;
+    const auto alpha = static_cast<float>(-1.0);
     cblas_saxpy(n, alpha, y.data(), incX, output.data(), incY);
     return output;
   }
 
   Matrix<double> operator-(const Matrix<double> &x, const Matrix<double> &y) {
     Matrix<double> output = x;
-    const int n = x.size();
+    const int n = static_cast<int>(x.size());
     const int incY = 1, incX = 1;
     const double alpha = -1.0;
     cblas_daxpy(n, alpha, y.data(), incX, output.data(), incY);
