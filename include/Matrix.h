@@ -676,6 +676,22 @@ namespace CppNNet2 {
     return output;
   }
 
+#ifdef USES_OPENBLAS
+
+  Matrix<float> operator*(const Matrix<float> &x, const float &y) {
+      Matrix<float> output = x;
+      cblas_sscal(output.size(), y, output.data(), 1);
+      return output;
+  }
+
+  Matrix<double> operator*(const Matrix<double> &x, const double &y) {
+      Matrix<double> output = x;
+      cblas_dscal(output.size(), y, output.data(), 1);
+      return output;
+  }
+
+#endif
+
   template<class T>
   Matrix<T> operator*(const Matrix<T> &x, const T &y) {
     Matrix<T> output(x.rows(), x.cols());
@@ -684,11 +700,23 @@ namespace CppNNet2 {
     return output;
   }
 
+#ifdef USES_OPENBLAS
+
+  Matrix<float> operator*(const float &x, const Matrix<float> &y) {
+      return operator*(y, x);
+  }
+
+  Matrix<double> operator*(const double &x, const Matrix<double> &y) {
+      return operator*(y, x);
+  }
+
+#endif
+
   template<class T>
   Matrix<T> operator*(const T &x, const Matrix<T> &y) {
-    Matrix<T> output(x.rows(), x.cols());
-    for (size_t i = 0; i < x.size(); i++)
-      output[i] = x[i] * y;
+    Matrix<T> output(y.rows(), y.cols());
+    for (size_t i = 0; i < y.size(); i++)
+      output[i] = x * y[i];
     return output;
   }
 

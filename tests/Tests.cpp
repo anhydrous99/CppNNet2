@@ -7,6 +7,63 @@
 
 using namespace CppNNet2;
 
+TEST(Matrix, FloatScalarMultiplication) {
+    Matrix<float> smat(2, 2);
+    smat(0, 0) = 1.0;
+    smat(0, 1) = 2.0;
+    smat(1, 0) = 3.0;
+    smat(1, 1) = 4.0;
+
+    float y = 2.0;
+
+    Matrix<float> result(2, 2);
+    result(0, 0) = 2.0;
+    result(0, 1) = 4.0;
+    result(1, 0) = 6.0;
+    result(1, 1) = 8.0;
+
+    Matrix<float> to_check = y * smat;
+    EXPECT_TRUE(all_equal(to_check, result));
+}
+
+TEST(Matrix, DoubleScalarMultiplication) {
+    Matrix<double> smat(2, 2);
+    smat(0, 0) = 1.0;
+    smat(0, 1) = 2.0;
+    smat(1, 0) = 3.0;
+    smat(1, 1) = 4.0;
+
+    double y = 2.0;
+
+    Matrix<double> result(2, 2);
+    result(0, 0) = 2.0;
+    result(0, 1) = 4.0;
+    result(1, 0) = 6.0;
+    result(1, 1) = 8.0;
+
+    Matrix<double> to_check = y * smat;
+    EXPECT_TRUE(all_equal(to_check, result));
+}
+
+TEST(Matrix, IntegerScalarMultiplication) {
+    Matrix<int> smat(2, 2);
+    smat(0, 0) = 1;
+    smat(0, 1) = 2;
+    smat(1, 0) = 3;
+    smat(1, 1) = 4;
+
+    int y = 2;
+
+    Matrix<int> result(2, 2);
+    result(0, 0) = 2;
+    result(0, 1) = 4;
+    result(1, 0) = 6;
+    result(1, 1) = 8;
+
+    Matrix<int> to_check = y * smat;
+    EXPECT_TRUE(all_equal(to_check, result));
+}
+
 TEST(Matrix, FloatMultiplication) {
   Matrix<float> smat(2, 2);
   smat(0, 0) = 1.0;
